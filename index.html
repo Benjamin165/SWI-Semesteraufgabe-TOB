@@ -3,37 +3,75 @@
 <head>
   <meta charset="utf-8">
   <title>Raumreservation</title>
-  <base href="/">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="/css/index.css" />
-  <script src="/js/index.js"></script>
+  <link rel="stylesheet" href="css/index.css" />  
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script src="js/app.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#1976d2">
 </head>
 <body>
     <header>
-        <img src="img/OST_Logo.svg" style="size: 25%;">
-        <label class="switch">
-            <input type="checkbox">
-            <span class="slider round"></span>
-        </label>
+        <img src="img/OST_Logo.svg" id="ostlogo">
+        <label class="toggleSwitch nolabel" onclick="updateTable()">
+            <input id="togglecur" type="checkbox" checked />
+              <span>
+                 <span>EUR</span>
+                 <span>CHF</span>
+              </span>
+         <a></a>
+         </label>
     </header>
+    <div id='main'>
     <table id="roomsTable">
         <thead>
           <tr>
-            <th>Repository<br>Name:</th>
-            <th>Timestamps:<br>Created &<br>Updated</th>
-            <th>Size</th>
-            <th>Number<br>of forks</th>
-            <th>Number<br>of<br>open<br>issues</th>
-            <th>HTML URL</th>
-            <th>List of Languages<br>Used and URL</th>
-            <th>Downloads</th>
-            <th>Branches</th>
+            <th>Verfügbar</th>
+            <th class="big">ID</th>
+            <th>Name</th>
+            <th class="big">Adresse</th>
+            <th>Preis</th>
+            <th class="big">Max. Personen</th>
+            <th>Reservierungen</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
+    </div>
+
+    <!--- reservierungenModal --->
+    <div class="modal fade" id="reservierungModal" tabindex="-1" role="dialog" aria-labelledby="reservierungModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="reservierungModalLabel">Reservierungen</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" id="reservierung-body">
+              <form>
+                <div class="form-group">
+                  <label for="message-text" class="col-form-label">Studenten-ID:</label>
+                  <input class="form-control" id="message-text"></input>
+                </div>
+                <div class="form-group">
+                  <label for="recipient-name" class="col-form-label">Zeitraum: </label>
+                  <input type="text" name="datefilter" id="daterange" value="" />
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Schliessen</button>
+              <button type="button" class="btn btn-primary">Reservierungen suchen</button>
+            </div>
+          </div>
+        </div>
+      </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
 </html>
