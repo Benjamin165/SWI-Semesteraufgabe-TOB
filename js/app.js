@@ -32,34 +32,56 @@ function applyReservation(){
     document.getElementById('reservieren-body').style.display = "none";
     document.getElementById('reservierung-beantragen').style.display = "none"; 
     document.getElementById('reservieren-show').style.display = "";
+    document.getElementById('warning').style.display = "none";
     var name = document.forms["reservieren-form"]["reservieren-name"].value;
     var email = document.forms["reservieren-form"]["reservieren-email"].value;
     var studid = document.forms["reservieren-form"]["reservieren-studid"].value;
     var title = document.forms["reservieren-form"]["reservieren-title"].value;
-    if (title != ""){    
-      var url = new URL('https://matthiasbaldauf.com/swi1hs20/booking'),
-      params = {roomid: roomid, title: title, organizer: name, email: email, start: startDate, end: endDate, studid: studid}
-    } else {
-      var url = new URL('https://matthiasbaldauf.com/swi1hs20/booking'),
-      params = {roomid: roomid, organizer: name, email: email, start: startDate, end: endDate, studid: studid}
+    var url = 'https://matthiasbaldauf.com/swi1hs20/booking';
+    if (title != ""){         
+      var details = {
+        'roomid': roomid,
+        'title': title, 
+        'organizer': name,
+        'email': email,
+        'start': startDate,
+        'end': endDate,
+        'studid': studid
+      }
+    } else {      
+      var details = {
+        'roomid': roomid,
+        'organizer': name,
+        'email': email,
+        'start': startDate,
+        'end': endDate,
+        'studid': studid
+      }
     }
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))    
+    var formBody = [];
+    for (var property in details){
+      var encodedKey = encodeURIComponent(property);
+      var encodedValue = encodeURIComponent(details[property]);
+      formBody.push(encodedKey + "=" + encodedValue);
+    }
+    formBody = formBody.join("&");
     fetch(url, {
-      method: 'POST'
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: formBody
     })
       .then((response) => {
           return response.json()
       })
       .then(data => {
         console.log(data);
-        if (data.success == "true"){
-          document.getElementById('reservation-success').style.display = "";
-        } else {
-          document.getElementById('reservation-fail').style.display = "";
-        }
+        document.getElementById('reservation-success').style.display = "";
       })
       .catch((err) => {
-          console.log('Fetch Error :-S', err)
+        console.log('Fetch Error :-S', err)
+        document.getElementById('reservation-fail').style.display = "";
       });  
 
       var inputEmail= document.getElementById("reservieren-email");
@@ -89,7 +111,8 @@ function getReservations() {
   var table = document.getElementById('reservierung-table');
   var url = new URL('https://matthiasbaldauf.com/swi1hs20/bookings'),
     params = {roomid: roomid, start:startDate, end: endDate, studid: a}
-  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))    
+  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
+  console.log(url);    
   fetch(url)
       .then((response) => {
           return response.json()
@@ -99,11 +122,12 @@ function getReservations() {
         if (data == ""){
           document.getElementById('none-found').style.display = "";
         } else {
+          document.getElementById('reservierung-table').style.display = "";
           data.forEach(function(object) {
             var tr = document.createElement('tr');
             tr.innerHTML = 
             '<td class="big">' + object.id + '</td>' +
-            '<td>' + object.start.toUTCString + ' - ' + object.end.toUTCString + '</td>' +
+            '<td>' + object.start.substring(0,19) + ' - ' + object.end.substring(0,19) + '</td>' +
             '<td class="big">' + object.title + '</td>' +
             '<td class="big">' + object.organizer + '</td>' + 
             '<td>' + object.email + '</td>' +
@@ -160,7 +184,7 @@ function updateTable(){
 function makeRows(object){
   return '<td id="ava">' + isAvailable(object.available) + '</td>' +
   '<td class="big">' + object.id + '</td>' +
-  '<td><a href="#" data-toggle="modal" data-target="#reservierungModal">' + setRoomname(object) + '</a></td>' +
+  '<td><a href="#" id="linkid' + object.id + '" data-toggle="modal" data-target="#reservierungModal">' + setRoomname(object) + '</a></td>' +
   '<td class="big">' + object.address + '</td>' + 
   '<td>' + correctCurrency(object.price) + '</td>' +
   '<td class="big">' + object.maxpersons + '</td>' +
@@ -240,6 +264,31 @@ $(document).on('click','#roomid8',function(){
     .setLngLat([lng[roomid-1], lat[roomid-1]])
     .addTo(map);
   map.setCenter([lng[roomid-1], lat[roomid-1]]);
+})
+
+$(document).on('click','#linkid1',function(){ 
+  roomid = 1;
+})
+$(document).on('click','#linkid2',function(){ 
+  roomid = 2;
+})
+$(document).on('click','#linkid3',function(){ 
+  roomid = 3;
+})
+$(document).on('click','#linkid4',function(){ 
+  roomid = 4;
+})
+$(document).on('click','#linkid5',function(){ 
+  roomid = 5;
+})
+$(document).on('click','#linkid6',function(){ 
+  roomid = 6;
+})
+$(document).on('click','#linkid7',function(){ 
+  roomid = 7;
+})
+$(document).on('click','#linkid8',function(){ 
+  roomid = 8;
 })
 
 
@@ -394,6 +443,12 @@ function resetModal(){
   document.getElementById('reservieren-body').style.display = "";
   document.getElementById('reservierung-beantragen').style.display = ""; 
   document.getElementById('reservieren-show').style.display = "none";
+  document.getElementById('warning').style.display = "";
+  document.forms["reservieren-form"]["reservieren-studid"].value = '';
+  document.forms["reservieren-form"]["reservieren-zeit"].value = '';
+  document.forms["reservieren-form"]["reservieren-title"].value = '';
+  document.getElementById('reservierung-table').style.display = "none";
+  document.getElementById('reservierung-table').innerHTML = "";
 }
 
 
