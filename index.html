@@ -6,12 +6,28 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
   <link rel="stylesheet" href="css/index.css" />  
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.css' rel='stylesheet' />
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.js'></script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   <script src="js/app.js"></script>
+  <style>    
+	  #map { 
+      width: 40vw;
+      height: 30vh;
+      margin-top: 2vh; 
+    }
+    @media (max-width: 600px) {
+      #map{
+        width: 80vw;
+      }
+    }
+  </style>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -30,7 +46,7 @@
     <table id="roomsTable">
         <thead>
           <tr>
-            <th>Verfügbar</th>
+            <th id="ava">Verfügbar</th>
             <th class="big">ID</th>
             <th>Name</th>
             <th class="big">Adresse</th>
@@ -44,7 +60,7 @@
     </div>
 
     <!--- reservierungenModal --->
-    <div class="modal fade" id="reservierungModal" tabindex="-1" role="dialog" aria-labelledby="reservierungModalLabel" aria-hidden="true">
+    <div class="modal fade bd-example-modal-lg" id="reservierungModal" tabindex="-1" role="dialog" aria-labelledby="reservierungModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -54,24 +70,85 @@
               </button>
             </div>
             <div class="modal-body" id="reservierung-body">
-              <form>
+              <form name="reservierung-form">
                 <div class="form-group">
-                  <label for="message-text" class="col-form-label">Studenten-ID:</label>
-                  <input class="form-control" id="message-text"></input>
+                  <label for="studenten-id" class="col-form-label">Studenten-ID:</label><br>
+                  <input type="text" name="stud-id" id="studenten-id" placeholder="1234"></input>
                 </div>
                 <div class="form-group">
-                  <label for="recipient-name" class="col-form-label">Zeitraum: </label>
+                  <label for="recipient-name" class="col-form-label">Zeitraum: </label><br>
                   <input type="text" name="datefilter" id="daterange" value="" />
                 </div>
               </form>
             </div>
+            <div class="modal-body" id="reservierung-show" style="display: none">
+              <p id="none-found" style="display: none">Es wurden keine Reservierungen gefunden.</p>
+            </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Schliessen</button>
-              <button type="button" class="btn btn-primary">Reservierungen suchen</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="resetModal()">Schliessen</button>
+              <button type="button" id="reservierung-suchen" class="btn btn-primary" onclick="getReservations()" disabled>Reservierungen suchen</button>
             </div>
           </div>
         </div>
       </div>
+
+      <!--- reservierenModal --->
+    <div class="modal fade bd-example-modal-lg" id="reservierenModal" tabindex="-1" role="dialog" aria-labelledby="reservierenModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reservierenModalLabel">Raum reservieren</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="reservieren-body">
+            <form name="reservieren-form">
+              <div class="form-group">
+                <label for="reservieren-name" class="col-form-label">Name (*):</label><br>
+                <input type="text" name="reservieren-name" id="reservieren-name" placeholder="Max Mustermann" required></input>
+              </div>
+              <div class="form-group">
+                <label for="reservieren-email" class="col-form-label">E-Mail (*): </label><br>
+                <input type="text" name="reservieren-email" id="reservieren-email" placeholder="max.mustermann@ost.ch" required/>
+              </div>
+              <div class="form-group">
+                <label for="reservieren-studid" class="col-form-label">Studierenden-ID (*): </label><br>
+                <input type="text" name="reservieren-studid" id="reservieren-studid" placeholder="1234" required/>
+              </div>
+              <div class="form-group">
+                <label for="reservieren-zeit" class="col-form-label">Reservierungszeit (*): </label><br>
+                <input type="text" name="datetimes" id="reservieren-zeit" value="" />
+              </div>
+              <p id="cost"></p>
+              <div class="form-group">
+                <label for="reservieren-title" class="col-form-label">Titel der Reservierung: </label><br>
+                <input type="text" name="reservieren-title" id="reservieren-title" placeholder="Projektabstimmung" />
+              </div>
+            </form>
+            <div id='map'></div>
+            <script>
+              mapboxgl.accessToken = 'pk.eyJ1Ijoic2Fsb25nbyIsImEiOiJja2tyOWh3bjQwMWRtMnZwbGg5YXFsZzMzIn0.UZAkGBLae9sPBH1PLFeSyQ';
+              var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [-74.5, 40],
+                zoom: 15
+            });
+            </script>
+          </div>
+          <div class="modal-body" id="reservieren-show" style="display: none">
+            <p id="reservation-success" style="display: none; color: green">Reservierung erfolgreich eingefügt!</p>
+            <p id="reservation-fail" style="display: none; color: red">Zeitraum bereits belegt</p>
+          </div>
+          <div class="modal-footer">
+            <p id="warning" style="color: red">Auswahlfelder mit einem * gekennzeichnet müssen ausgefüllt werden</p>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="resetModal()">Schliessen</button>
+            <button type="button" id="reservierung-beantragen" class="btn btn-primary" onclick="applyReservation()" disabled>Reservierungen beantragen</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
 </html>
