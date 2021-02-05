@@ -23,6 +23,82 @@ function getRooms() {
         });
 }
 
+function delReservation(){  
+  document.getElementById('delete-body').style.display = "none";
+  document.getElementById('delete-res').style.display = "none";    
+  document.getElementById('delete-show').style.display = "";
+  var roomid = document.forms["delete-form"]["delete-roomid"].value;
+  var studid = document.forms["delete-form"]["delete-studid"].value;
+  var url = new URL('https://matthiasbaldauf.com/swi1hs20/booking'),
+    params = {id: roomid, studid: studid}
+  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))  
+    fetch(url, {
+      method: 'delete'
+    })
+      .then((response) => {
+          return response.json()
+      })
+      .then(data => {
+        console.log(data);
+        if (data.success == true){
+          document.getElementById('delete-success').style.display = "";
+          document.getElementById('delete-success').innerHTML = data.message;
+        } else {          
+          document.getElementById('delete-fail').style.display = "";
+          document.getElementById('delete-fail').innerHTML = data.message;
+        }
+      })
+      .catch((err) => {
+        console.log('Fetch Error :-S', err)
+        document.getElementById('reservation-fail').style.display = "";
+      });  
+}
+
+/*function delReservation(){  
+  document.getElementById('delete-body').style.display = "none";
+  document.getElementById('delete-res').style.display = "none";    
+  document.getElementById('delete-show').style.display = "";
+  var roomid = document.forms["delete-form"]["delete-roomid"].value;
+  var studid = document.forms["delete-form"]["delete-studid"].value;
+  var url = 'https://matthiasbaldauf.com/swi1hs20/booking';
+  var details = {
+    'id': roomid,
+    'studid': studid
+  }  
+  var formBody = [];
+  for (var property in details){
+    var encodedKey = encodeURIComponent(property);
+    var encodedValue = encodeURIComponent(details[property]);
+    formBody.push(encodedKey + "=" + encodedValue);
+  }
+  formBody = formBody.join("&");
+    fetch(url, {
+      method: 'delete',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: formBody
+    })
+      .then((response) => {
+          return response.json()
+      })
+      .then(data => {
+        console.log(data);
+        if (data.success == true){
+          document.getElementById('delete-success').style.display = "";
+          document.getElementById('delete-success').innerHTML = data.message;
+          console.log(formBody);
+        } else {          
+          document.getElementById('delete-fail').style.display = "";
+          document.getElementById('delete-fail').innerHTML = data.message;
+        }
+      })
+      .catch((err) => {
+        console.log('Fetch Error :-S', err)
+        document.getElementById('reservation-fail').style.display = "";
+      });  
+} */
+
 function applyReservation(){
   if (!validateEmail(document.forms["reservieren-form"]["reservieren-email"].value)){
     alert('Geben Sie eine gültige E-Mail Adresse ein!');
@@ -77,7 +153,13 @@ function applyReservation(){
       })
       .then(data => {
         console.log(data);
-        document.getElementById('reservation-success').style.display = "";
+        if (data.success == true){
+          document.getElementById('reservation-success').style.display = "";
+          console.log(formBody);
+        } else {          
+          document.getElementById('reservation-fail').style.display = "";
+          document.getElementById('reservation-fail').innerHTML = data.message;
+        }
       })
       .catch((err) => {
         console.log('Fetch Error :-S', err)
@@ -111,8 +193,7 @@ function getReservations() {
   var table = document.getElementById('reservierung-table');
   var url = new URL('https://matthiasbaldauf.com/swi1hs20/bookings'),
     params = {roomid: roomid, start:startDate, end: endDate, studid: a}
-  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
-  console.log(url);    
+  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))  
   fetch(url)
       .then((response) => {
           return response.json()
@@ -131,7 +212,7 @@ function getReservations() {
             '<td class="big">' + object.title + '</td>' +
             '<td class="big">' + object.organizer + '</td>' + 
             '<td>' + object.email + '</td>' +
-            '<td>' + object.studid + '</td>' +
+            '<td>' + object.studid + '</td>';
             table.appendChild(tr);
           })
         }
@@ -316,6 +397,25 @@ function checkInputs() {
   }
 }
 
+function checkDelInputs() {
+  var a = document.forms["delete-form"]["delete-roomid"].value;
+  var b = document.forms["delete-form"]["delete-studid"].value;
+  if (a != "" && b != ""){
+    document.getElementById('delete-res').disabled = false;
+  }
+}
+
+
+$(function() {
+$('#delete-roomid').on('input', function() {
+  checkDelInputs();
+});
+
+$('#delete-studid').on('input', function() {
+  checkDelInputs();
+});
+});
+
 $(function() {
   $('input[name="datetimes"]').daterangepicker({
     timePicker: true,
@@ -449,6 +549,15 @@ function resetModal(){
   document.forms["reservieren-form"]["reservieren-title"].value = '';
   document.getElementById('reservierung-table').style.display = "none";
   document.getElementById('reservierung-table').innerHTML = "";
+  document.getElementById('delete-body').style.display = "";
+  document.getElementById('delete-res').style.display = "";    
+  document.getElementById('delete-show').style.display = "none";
+  document.forms["delete-form"]["delete-roomid"].value = '';
+  document.forms["delete-form"]["delete-studid"].value = '';
+  document.getElementById('delete-success').style.display = "none";  
+  document.getElementById('delete-fail').style.display = "none";  
+  document.getElementById('reservation-success').style.display = "none";  
+  document.getElementById('reservation-fail').style.display = "none";  
 }
 
 

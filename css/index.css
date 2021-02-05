@@ -8,6 +8,14 @@ table {
   margin-right: 2%;
 }
 
+#reservierungModal {
+  width: 100vw;
+}
+
+#delete {
+  margin-top: 1vh;
+}
+
 #reservierung-table {
   border: none;
 }

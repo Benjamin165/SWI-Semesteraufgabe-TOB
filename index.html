@@ -57,15 +57,16 @@
         </thead>
         <tbody></tbody>
       </table>
+      <button type="button" id="delete" class="btn btn-primary" data-toggle="modal" data-target="#deleteModal">Reservierung löschen</button>
     </div>
 
     <!--- reservierungenModal --->
     <div class="modal fade bd-example-modal-lg" id="reservierungModal" tabindex="-1" role="dialog" aria-labelledby="reservierungModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="reservierungModalLabel">Reservierungen</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetModal()">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
@@ -100,7 +101,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="reservierenModalLabel">Raum reservieren</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetModal()">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -141,12 +142,47 @@
           </div>
           <div class="modal-body" id="reservieren-show" style="display: none">
             <p id="reservation-success" style="display: none; color: green">Reservierung erfolgreich eingefügt!</p>
-            <p id="reservation-fail" style="display: none; color: red">Zeitraum bereits belegt</p>
+            <p id="reservation-fail" style="display: none; color: red">Etwas lief falsch</p>
           </div>
           <div class="modal-footer">
             <p id="warning" style="color: red">Auswahlfelder mit einem * gekennzeichnet müssen ausgefüllt werden</p>
             <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="resetModal()">Schliessen</button>
             <button type="button" id="reservierung-beantragen" class="btn btn-primary" onclick="applyReservation()" disabled>Reservierungen beantragen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--- löschenModal --->
+    <div class="modal fade bd-example-modal-lg" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Reservierung löschen</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetModal()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="delete-body">
+            <form name="delete-form">
+              <div class="form-group">
+                <label for="delete-roomid" class="col-form-label">Raum-ID (*):</label><br>
+                <input type="text" name="delete-roomid" id="delete-roomid" placeholder="1" required></input>
+              </div>
+              <div class="form-group">
+                <label for="delete-studid" class="col-form-label">Studierenden-ID (*): </label><br>
+                <input type="text" name="delete-studid" id="delete-studid" placeholder="1234" required/>
+              </div>
+            </form>
+          </div>
+          <div class="modal-body" id="delete-show" style="display: none">
+            <p id="delete-success" style="display: none; color: green"></p>
+            <p id="delete-fail" style="display: none; color: red"></p>
+          </div>
+          <div class="modal-footer">
+            <p id="warning" style="color: red">Auswahlfelder mit einem * gekennzeichnet müssen ausgefüllt werden</p>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="resetModal()">Schliessen</button>
+            <button type="button" id="delete-res" class="btn btn-primary" onclick="delReservation()" disabled>Reservierungen löschen</button>
           </div>
         </div>
       </div>
